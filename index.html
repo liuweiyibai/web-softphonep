@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo Phone</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body class="log_body">
+    <!--操作功能导航条-->
+    <div id="nav_box">
+      <ul class="nav">
+        <li class="nav-item">
+          <div class="item-detail" onclick="extensionBusyOrLeisure()">
+            <img id="extensionTipIcon" title="示忙" src="img/shixian.png" />
+            <span id="extensionTip" class="item-detail-title">示闲</span>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class="item-detail" onclick="keep();">
+            <img id="callKeepIcon" src="img/tonghuabaochi1.png" />
+            <span id="callKeep" class="item-detail-title">保持</span>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class="item-detail" onclick="transfer()">
+            <img id="callTransferIcon" src="img/tonghuazhuanyi.png" />
+            <span id="callTransfer" class="item-detail-title">转移</span>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class="item-detail">
+            <img
+              id="extensionStatusIcon"
+              title="分机未登录"
+              src="img/fenjizhuangtai2.png"
+            />
+            <span id="extensionStatus" class="item-detail-title">未登录</span>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class="item-detail" onclick="setup()">
+            <img id="extensionSetupIcon" src="img/denglu.png" />
+            <span id="extensionSetup" class="item-detail-title">设置</span>
+          </div>
+        </li>
+        <li class="nav-item">
+          <span id="secondReading"></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="log_box">
+      <div class="title">
+        <!--<img src="img/logo.png" alt="中国-东盟信息港股份有限公司 · Web电话" />-->
+        <!--<h1>Web电话</h1>-->
+      </div>
+
+      <!-- Configuration Prompt -->
+      <form id="reg_form" action="">
+        <div class="log_form">
+          <div class="form_field">
+            <label><i class="user"></i></label>
+            <input
+              type="text"
+              name="authorizationUser"
+              value=""
+              placeholder="SIP账号(如:60000000000004)"
+            />
+          </div>
+          <div class="form_field">
+            <label><i class="password"></i></label>
+            <input
+              type="password"
+              name="password"
+              value=""
+              placeholder="分机密码"
+            />
+          </div>
+          <div class="form_field">
+            <label><i class="setting"></i></label>
+            <input
+              type="text"
+              name="wsServers"
+              value=""
+              placeholder="分机注册地址"
+            />
+          </div>
+          <div class="form_field">
+            <label><i class="setting"></i></label>
+            <input
+              type="text"
+              name="statusPushUrl"
+              value=""
+              placeholder="状态推送监控地址"
+            />
+          </div>
+          <div class="tishi" id="pmsg" align="center">登录失败</div>
+          <div class="form_field">
+            <input type="button" name="configSubmit" value="登录" id="log" />
+          </div>
+        </div>
+      </form>
+
+      <!-- UA Control Form -->
+      <div id="ua">
+        <form id="new-session-form" action="">
+          <div class="user_box">
+            <img src="img/headimage.png" alt="用户头像" />
+            <label id="reg_user_number"></label>
+          </div>
+          <div class="form_field" id="input_callee">
+            <label><i class="callset"></i></label>
+            <input
+              type="text"
+              id="callee_number"
+              onkeydown="return ClearSubmit(event)"
+              placeholder="输入呼叫号码"
+            />
+          </div>
+          <div>
+            <label><i id="show_status" class="show_status"></i></label>
+          </div>
+          <div class="form_field">
+            <input type="button" id="ua-invite" value="呼叫" />
+            <input
+              type="button"
+              class="unregister"
+              id="ua-unregiter-button"
+              value="退出"
+            />
+          </div>
+          <audio autoplay id="audio"></audio>
+        </form>
+      </div>
+
+      <!--呼叫设置弹出框-->
+      <div id="setupDiv" class="layui-fluid" hidden="">
+        <form id="setupForm">
+          <div class="form_field setup_field">
+            <label><b class="company"></b></label>
+            <input
+              type="text"
+              name="company"
+              value=""
+              placeholder="请输入公司账号"
+            />
+          </div>
+          <div class="form_field setup_field">
+            <label><i class="user"></i></label>
+            <input
+              type="text"
+              name="clientNumber"
+              value=""
+              placeholder="SIP账号(如:60000000000004)"
+            />
+          </div>
+          <div class="form_field setup_field">
+            <label><i class="setting"></i></label>
+            <input
+              type="text"
+              name="httpServers"
+              value="https://{需替换的域名}/ipcc/callTool.html?f=getConfigInfo"
+              placeholder="配置地址(如:https://123.com/ipcc/callTool.html?f=getConfigInfo)"
+            />
+          </div>
+        </form>
+      </div>
+
+      <!--通话转移弹出框-->
+      <div id="callTransferDiv" class="layui-fluid" hidden="">
+        <form id="callTransferForm">
+          <table class="callTransferTable">
+            <tr>
+              <td>转移给:</td>
+              <td>
+                <select id="transferUser" name="transferUser"></select>
+              </td>
+            </tr>
+          </table>
+        </form>
+      </div>
+    </div>
+
+    <ul id="session-list"></ul>
+
+    <!-- Templates to clone Sessions and Messages -->
+    <ul id="templates">
+      <li id="session-template" class="template session">
+        <h3><strong class="display-name name"></strong></h3>
+        <h3 class="inbound_status name"></h3>
+        <div class="new_invite" id="new_invite_id">
+          <input
+            type="button"
+            class="accept"
+            id="ua-accept-button"
+            value="接听"
+          />
+          <input
+            type="button"
+            class="reject"
+            id="ua-reject-button"
+            value="拒绝"
+          />
+          <input
+            type="button"
+            class="close"
+            id="ua-close-button"
+            value="关闭"
+          />
+        </div>
+        <audio autoplay class="audio"></audio>
+        <audio id="ringtone" class="ringtone" loop src="sounds/ringtone.wav" />
+      </li>
+    </ul>
+
+    <!--<div class="copyright">-->
+    <!--<p></p>-->
+    <!--</div>-->
+    <script src="js/status-push.js"></script>
+    <script src="js/sip-0.7.8.js"></script>
+    <script src="js/ucpaas-ipcc.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/layer/layer.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script src="js/demo.js"></script>
+  </body>
+</html>
